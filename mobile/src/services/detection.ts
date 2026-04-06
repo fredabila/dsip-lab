@@ -26,7 +26,11 @@ interface RawDetectionResponse {
 }
 
 export async function detectPPE(photoPath: string): Promise<DetectionResult> {
-	const file = new File(`file://${photoPath}`)
+	const normalizedPath = photoPath.startsWith('file://')
+		? photoPath
+		: `file://${photoPath}`
+
+	const file = new File(normalizedPath)
 	const formData = new FormData()
 	formData.append('frame', file)
 

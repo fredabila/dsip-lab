@@ -1,6 +1,8 @@
 // src/app/index.tsx
 import { useMutation } from '@tanstack/react-query'
 import * as Burnt from 'burnt'
+import * as ImagePicker from 'expo-image-picker'
+import { useRouter } from 'expo-router'
 import { Spinner } from 'heroui-native/spinner'
 import { useEffect, useRef, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
@@ -14,12 +16,17 @@ import { IdleOverlay } from '@/components/idle-overlay'
 import { VIOLATION_CLASSES } from '@/constants/ppe'
 import { detectPPE } from '@/services/detection'
 import type { DetectionResult } from '@/types/detection'
+import ImageIcon from '@/components/icons/lucide/image'
+import { Button } from 'heroui-native'
+import { useDetectionStore } from '@/stores/detection'
 
 const FRAME_INTERVAL_MS = 500
 const CONSECUTIVE_FAILURE_THRESHOLD = 3
 const IDLE_TIMEOUT_MS = 15_000
 
 export default function CameraScreen() {
+	const router = useRouter()
+	const setDetection = useDetectionStore((state) => state.setDetection)
 	const { hasPermission, requestPermission } = useCameraPermission()
 	const device = useCameraDevice('back')
 	const cameraRef = useRef<Camera>(null)
@@ -133,6 +140,37 @@ export default function CameraScreen() {
 			(d) => !VIOLATION_CLASSES.includes(d.className),
 		).length ?? 0
 
+	const handleImagePicker = async () => {
+		try {
+			const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+			if (!permission.granted) {
+				Burnt.toast({
+					title: 'Permission denied',
+					message: 'Allow photo library access to upload images',
+					preset: 'error',
+					haptic: 'error',
+					from: 'bottom',
+				})
+				return
+			}
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ['images'],
+				allowsEditing: false,
+				quality: 1,
+			})
+
+			if (result.canceled || !result.assets?.[0]) return
+
+			const asset = result.assets[0]
+			const data = await runDetection(asset.uri)
+
+			setDetection({ imageUri: asset.uri, result: data })
+			router.push('/result')
+		} catch (error) {
+			console.error('Error requesting media library permissions:', error)
+		}
+	}
+
 	return (
 		<View
 			className="flex-1 bg-black"
@@ -185,6 +223,14 @@ export default function CameraScreen() {
 					}}
 				/>
 			)}
+
+			<View className="absolute bottom-6 right-4">
+				<Button variant="secondary" onPress={handleImagePicker}>
+					<ImageIcon color="#fff" />
+					<Text className="text-white ml-2">Upload</Text>
+				</Button>
+			</View>
+
 		</View>
 	)
 }

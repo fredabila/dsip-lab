@@ -43,4 +43,6 @@ app-example
 /android
 
 # monicon generated
-components/icons/
+src/components/icons/
+
+.agents/
