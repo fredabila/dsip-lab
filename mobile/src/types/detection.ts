@@ -1,4 +1,5 @@
 // src/types/detection.ts
+
 import type { PPEClass } from '@/constants/ppe'
 
 export interface BoundingBox {

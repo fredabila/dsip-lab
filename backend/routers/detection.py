@@ -1,3 +1,4 @@
+# routers/detection.py
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from schemas.detection import DetectionResponse
@@ -14,6 +15,7 @@ async def detect(frame: UploadFile = File(...)) -> DetectionResponse:
 	image_bytes = await frame.read()
 
 	try:
-		return ppe_service.run(image_bytes)
+		async with ppe_service._lock:
+			return ppe_service.run(image_bytes)
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=str(e))

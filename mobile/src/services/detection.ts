@@ -30,16 +30,13 @@ export async function detectPPE(photoPath: string): Promise<DetectionResult> {
 	const formData = new FormData()
 	formData.append('frame', file)
 
-
-	console.log('Sending frame for detection...')
-  const response = await fetch(DETECT_ENDPOINT, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'ngrok-skip-browser-warning': 'true',
-    }
-  })
-	console.log('Received response from detection endpoint')
+	const response = await fetch(DETECT_ENDPOINT, {
+		method: 'POST',
+		body: formData,
+		headers: {
+			'ngrok-skip-browser-warning': 'true',
+		},
+	})
 
 	if (!response.ok) {
 		throw new Error(`Detection failed: ${response.status}`)

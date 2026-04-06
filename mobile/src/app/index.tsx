@@ -1,3 +1,4 @@
+// src/app/index.tsx
 import { useMutation } from '@tanstack/react-query'
 import * as Burnt from 'burnt'
 import { Spinner } from 'heroui-native/spinner'
@@ -9,18 +10,23 @@ import {
 	useCameraPermission,
 } from 'react-native-vision-camera'
 import { DetectionOverlay } from '@/components/detection-overlay'
+import { IdleOverlay } from '@/components/idle-overlay'
 import { VIOLATION_CLASSES } from '@/constants/ppe'
 import { detectPPE } from '@/services/detection'
 import type { DetectionResult } from '@/types/detection'
 
 const FRAME_INTERVAL_MS = 500
 const CONSECUTIVE_FAILURE_THRESHOLD = 3
+const IDLE_TIMEOUT_MS = 15_000
 
 export default function CameraScreen() {
 	const { hasPermission, requestPermission } = useCameraPermission()
 	const device = useCameraDevice('back')
 	const cameraRef = useRef<Camera>(null)
+	const inFlight = useRef<boolean>(false)
+	const lastActivityRef = useRef<number>(Date.now())
 
+	const [isPaused, setIsPaused] = useState(false)
 	const [frameSize, setFrameSize] = useState({ width: 0, height: 0 })
 	const [detectionResult, setDetectionResult] =
 		useState<DetectionResult | null>(null)
@@ -32,6 +38,10 @@ export default function CameraScreen() {
 		mutationFn: detectPPE,
 		onSuccess: (data) => {
 			consecutiveFailures.current = 0
+			if (data.detections.length > 0) {
+				lastActivityRef.current = Date.now()
+				setIsPaused(false)
+			}
 			setDetectionResult(data)
 		},
 		onError: () => {
@@ -50,24 +60,37 @@ export default function CameraScreen() {
 	})
 
 	useEffect(() => {
-		if (!hasPermission || !device) return
+		const interval = setInterval(() => {
+			if (Date.now() - lastActivityRef.current > IDLE_TIMEOUT_MS) {
+				setIsPaused(true)
+			}
+		}, 1000)
+		return () => clearInterval(interval)
+	}, [])
+
+	useEffect(() => {
+		if (!hasPermission || !device || isPaused) return
 
 		let cancelled = false
 
 		async function loop() {
 			if (cancelled || !cameraRef.current) return
 
-			try {
-				const photo = await cameraRef.current.takeSnapshot({ quality: 60 })
-				if (!cancelled) {
-					await runDetection(photo.path)
-				}
+			if (inFlight.current) {
+				setTimeout(loop, FRAME_INTERVAL_MS)
+				return
+			}
 
+			try {
+				inFlight.current = true
+				const photo = await cameraRef.current.takeSnapshot({ quality: 60 })
 				if (!cancelled) {
 					await runDetection(photo.path)
 				}
 			} catch (e) {
 				console.log('loop error:', e)
+			} finally {
+				inFlight.current = false
 			}
 
 			if (!cancelled) {
@@ -80,7 +103,7 @@ export default function CameraScreen() {
 		return () => {
 			cancelled = true
 		}
-	}, [hasPermission, device, runDetection])
+	}, [hasPermission, device, runDetection, isPaused])
 
 	if (!hasPermission) {
 		return (
@@ -111,12 +134,15 @@ export default function CameraScreen() {
 		).length ?? 0
 
 	return (
-		<View className="flex-1 bg-black">
+		<View
+			className="flex-1 bg-black"
+			onTouchStart={() => (lastActivityRef.current = Date.now())}
+		>
 			<Camera
 				ref={cameraRef}
 				style={StyleSheet.absoluteFill}
 				device={device}
-				isActive
+				isActive={!isPaused}
 				photo
 				onLayout={(e) => {
 					const { width, height } = e.nativeEvent.layout
@@ -149,6 +175,15 @@ export default function CameraScreen() {
 					<Spinner size="lg" />
 					<Text className="text-white mt-3 text-sm">Connecting...</Text>
 				</View>
+			)}
+
+			{isPaused && (
+				<IdleOverlay
+					onResume={() => {
+						lastActivityRef.current = Date.now()
+						setIsPaused(false)
+					}}
+				/>
 			)}
 		</View>
 	)

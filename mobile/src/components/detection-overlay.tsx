@@ -1,3 +1,4 @@
+// src/components/detection-overlay.tsx
 import { Text, View } from 'react-native'
 import { CLASS_COLORS } from '@/constants/ppe'
 import type { Detection } from '@/types/detection'

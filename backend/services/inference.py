@@ -1,6 +1,8 @@
+# services/inference.py
 import io
 import time
 from pathlib import Path
+import asyncio
 
 from PIL import Image
 from ultralytics import YOLO
@@ -20,10 +22,14 @@ CONFIDENCE_THRESHOLD = 0.35
 class PPEInferenceService:
 	def __init__(self):
 		self._model: YOLO | None = None
+		self._lock = asyncio.Lock()
 
 	def load(self):
 		if self._model is None:
 			self._model = YOLO(str(MODEL_PATH))
+			self._tracked_ids = [
+				i for i, name in self._model.names.items() if name in TRACKED_CLASSES
+			]
 
 	def run(self, image_bytes: bytes) -> DetectionResponse:
 		if self._model is None:
@@ -35,6 +41,7 @@ class PPEInferenceService:
 		results = self._model.predict(
 			source=image,
 			conf=CONFIDENCE_THRESHOLD,
+			classes=self._tracked_ids,
 			verbose=False,
 		)
 		inference_time_ms = (time.perf_counter() - start) * 1000
@@ -53,9 +60,6 @@ class PPEInferenceService:
 
 				x1, y1, x2, y2 = box.xyxyn[0].tolist()
 
-				if class_name not in TRACKED_CLASSES:
-					continue
-				
 				detections.append(
 					Detection(
 						class_index=class_index,

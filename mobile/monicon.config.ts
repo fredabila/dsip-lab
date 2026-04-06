@@ -5,7 +5,7 @@ export default {
 	icons: ['mdi:home', 'feather:activity'],
 	collections: ['lucide',],
 	plugins: [
-		clean({ patterns: ['components/icons'] }),
-		reactNative({ outputPath: 'components/icons' }),
+		clean({ patterns: ['src/components/icons'] }),
+		reactNative({ outputPath: 'src/components/icons' }),
 	],
 } satisfies MoniconConfig
