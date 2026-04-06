@@ -34,12 +34,6 @@
       "expo-router",
       "react-native-vision-camera",
       [
-        "react-native-fast-tflite",
-        {
-          "enableAndroidGpuLibraries": true
-        }
-      ],
-      [
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",

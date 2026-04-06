@@ -1,15 +1,18 @@
+import io
 import time
 from pathlib import Path
-from ultralytics import YOLO
-from PIL import Image
-import io
 
-from schemas.detection import Detection, BoundingBox, DetectionResponse
+from PIL import Image
+from ultralytics import YOLO
+
+from schemas.detection import BoundingBox, Detection, DetectionResponse
 
 MODEL_PATH = Path(__file__).parent.parent / "models" / "helmax_ppe.pt"
 
 VIOLATION_CLASSES = {"no-helmet", "no-vest", "no-boots"}
 COMPLIANT_CLASSES = {"helmet", "vest", "boots"}
+
+TRACKED_CLASSES = VIOLATION_CLASSES | COMPLIANT_CLASSES
 
 CONFIDENCE_THRESHOLD = 0.35
 
@@ -42,7 +45,7 @@ class PPEInferenceService:
 			boxes = result.boxes
 			if boxes is None:
 				continue
-			
+
 			for box in boxes:
 				class_index = int(box.cls[0])
 				class_name = result.names[class_index]
@@ -50,6 +53,9 @@ class PPEInferenceService:
 
 				x1, y1, x2, y2 = box.xyxyn[0].tolist()
 
+				if class_name not in TRACKED_CLASSES:
+					continue
+				
 				detections.append(
 					Detection(
 						class_index=class_index,
