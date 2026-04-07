@@ -1,8 +1,11 @@
+import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
-import { Button } from 'heroui-native/button'
 import { useState } from 'react'
-import { Image, Text, View } from 'react-native'
+import { View } from 'react-native'
+import { useResolveClassNames } from 'uniwind'
 import { DetectionOverlay } from '@/components/detection-overlay'
+import { QueryError } from '@/components/query-error'
+import { ResultSummaryPanel } from '@/components/result/result-summary-panel'
 import { VIOLATION_CLASSES } from '@/constants/ppe'
 import { useDetectionStore } from '@/stores/detection'
 
@@ -10,8 +13,10 @@ export default function ResultScreen() {
 	const router = useRouter()
 	const imageUri = useDetectionStore((s) => s.imageUri)
 	const result = useDetectionStore((s) => s.result)
-	const clearDetection = useDetectionStore((s) => s.clearDetection)
 
+	const imageStyle = useResolveClassNames('w-full h-full')
+
+	const [hasImageLoadError, setHasImageLoadError] = useState(false)
 	const [frameSize, setFrameSize] = useState({ width: 0, height: 0 })
 
 	const detections = result?.detections ?? []
@@ -24,34 +29,33 @@ export default function ResultScreen() {
 
 	if (!imageUri || !result) {
 		return (
-			<View className="flex-1 items-center justify-center bg-black">
-				<Text className="text-white">No detection result available</Text>
-				<Button
-					variant="primary"
-					onPress={() => router.back()}
-					className="mt-4"
-				>
-					Go Back
-				</Button>
-			</View>
+			<QueryError
+				className="bg-background"
+				message="No detection result is available."
+				onRetry={() => router.back()}
+			/>
 		)
 	}
 
 	return (
-		<View className="flex-1 bg-black">
+		<View className="flex-1 bg-background">
 			<View
 				className="flex-1"
 				onLayout={(e) => {
 					const { width, height } = e.nativeEvent.layout
-					setFrameSize({ width, height })
+					if (width !== frameSize.width || height !== frameSize.height) {
+						setFrameSize({ width, height })
+					}
 				}}
 			>
-				{imageUri ? (
+				{imageUri && !hasImageLoadError ? (
 					<>
 						<Image
 							source={{ uri: imageUri }}
-							className="w-full h-full"
-							resizeMode="contain"
+							style={imageStyle}
+							contentFit="contain"
+							onError={() => setHasImageLoadError(true)}
+							accessibilityLabel="Detection result image"
 						/>
 						{frameSize.width > 0 && frameSize.height > 0 && (
 							<DetectionOverlay
@@ -62,36 +66,23 @@ export default function ResultScreen() {
 						)}
 					</>
 				) : (
-					<View className="flex-1 items-center justify-center">
-						<Text className="text-white">No image selected</Text>
-					</View>
+					<QueryError
+						className="bg-background"
+						message={
+							hasImageLoadError
+								? 'We could not load that image. Please try scanning another photo.'
+								: 'No image selected.'
+						}
+						onRetry={() => router.back()}
+					/>
 				)}
 			</View>
 
-			<View className="px-4 py-4 bg-black/85 gap-3">
-				<View className="flex-row justify-between">
-					<Text className="text-green-400 font-semibold">
-						✓ {compliantCount} Compliant
-					</Text>
-					<Text className="text-red-400 font-semibold">
-						✕ {violationCount} Violation{violationCount !== 1 ? 's' : ''}
-					</Text>
-				</View>
-
-				<Text className="text-white/80 text-xs">
-					Inference: {result.inferenceTimeMs.toFixed(0)} ms
-				</Text>
-
-				<Button
-					variant="primary"
-					onPress={() => {
-						clearDetection()
-						router.back()
-					}}
-				>
-					Scan another
-				</Button>
-			</View>
+			<ResultSummaryPanel
+				compliantCount={compliantCount}
+				violationCount={violationCount}
+				inferenceTimeMs={result.inferenceTimeMs}
+			/>
 		</View>
 	)
 }

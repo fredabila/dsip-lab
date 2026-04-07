@@ -1,64 +1,65 @@
 {
-	"expo": {
-		"name": "mobile",
-		"slug": "mobile",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"icon": "./assets/images/icon.png",
-		"scheme": "mobile",
-		"userInterfaceStyle": "automatic",
-		"ios": {
-			"icon": "./assets/expo.icon",
-			"infoPlist": {
-				"NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"backgroundColor": "#E6F4FE",
-				"foregroundImage": "./assets/images/android-icon-foreground.png",
-				"backgroundImage": "./assets/images/android-icon-background.png",
-				"monochromeImage": "./assets/images/android-icon-monochrome.png"
-			},
-			"predictiveBackGestureEnabled": false,
-			"permissions": ["android.permission.CAMERA"],
-			"package": "com.tormgibbs.helmax"
-		},
-		"web": {
-			"output": "static",
-			"favicon": "./assets/images/favicon.png"
-		},
-		"plugins": [
-			"expo-router",
-			"react-native-vision-camera",
-			[
-				"expo-image-picker",
-				{
-					"photosPermission": "Allow $(PRODUCT_NAME) to access your photos for PPE analysis",
-					"cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-					"microphonePermission": false
-				}
-			],
-			[
-				"expo-splash-screen",
-				{
-					"backgroundColor": "#208AEF",
-					"android": {
-						"image": "./assets/images/splash-icon.png",
-						"imageWidth": 76
-					}
-				}
-			]
-		],
-		"experiments": {
-			"typedRoutes": true,
-			"reactCompiler": true
-		},
-		"extra": {
-			"router": {},
-			"eas": {
-				"projectId": "857e903e-709f-480a-945c-411ed51d0705"
-			}
-		}
-	}
+  "expo": {
+    "name": "Helmax",
+    "slug": "helmax",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "helmax",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#131318",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA"
+      ],
+      "package": "com.tormgibbs.helmax"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "react-native-vision-camera",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos and videos",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#131318",
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "resizeMode": "contain"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ae9eb36a-197a-4da1-8e12-f1dec8e232b3"
+      }
+    },
+    "owner": "tormgibbs"
+  }
 }
