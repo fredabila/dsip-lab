@@ -1,0 +1,32 @@
+# Malaria: DETECT and count parasites / cells in whole blood-smear images (bounding boxes).
+# Needs a dataset in YOLO format: images/ + labels/ (one .txt per image: "class cx cy w h",
+# normalised 0-1). Most Roboflow Universe malaria datasets can be exported as
+# "YOLOv8" format, which gives train/ valid/ test/ folders and a data.yaml with class
+# names - point `source` at that folder.
+# If your annotations are in another format (COCO JSON, Pascal VOC XML, CSV),
+# convert them to YOLO txt first.
+
+name: malaria_detection
+task: detect
+
+data:
+  source: data/raw/malaria_yolo
+  # classes: [parasite, wbc]   # only needed if there is no data.yaml with `names`
+  split: {val: 0.15, test: 0.15}   # used only if the dataset is not already split
+
+preprocess:
+  # Only intensity operations here: they don't move pixels, so boxes stay valid.
+  # (resize without padding is also safe.)
+  - homomorphic: {gamma_low: 0.7, gamma_high: 1.3, cutoff: 0.05}  # even out illumination
+  - clahe: {clip_limit: 2.0, tile_grid: 8}
+
+model: yolo11n.pt
+
+train:
+  epochs: 80
+  imgsz: 640
+  batch: 16
+  patience: 20
+  fliplr: 0.5
+  flipud: 0.5
+  hsv_h: 0.0

@@ -1,2 +1,12 @@
 model/dataset
 ppe.zip
+# dsip lab (model/)
+model/data/
+model/runs/
+model/figures/
+model/**/*.pt
+model/**/*.onnx
+model/**/*.egg-info/
+model/.venv/
+__pycache__/
+.pytest_cache/

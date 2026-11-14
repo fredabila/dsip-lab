@@ -1,0 +1,39 @@
+# Breast cancer: ultrasound images, benign vs malignant vs normal.
+# Dataset: BUSI (Breast Ultrasound Images, 780 images, 600 patients).
+#   Kaggle: https://www.kaggle.com/datasets/aryashah2k/breast-ultrasound-images-dataset
+#   kaggle datasets download -d aryashah2k/breast-ultrasound-images-dataset -p data/raw --unzip
+# Layout: Dataset_BUSI_with_GT/{benign,malignant,normal}/"benign (1).png" + "benign (1)_mask.png"
+# The *_mask.png files are tumour segmentation masks, not inputs: they are excluded.
+#
+# Want binary benign vs malignant? Remove `normal` from class_map.
+
+name: breast_ultrasound
+task: classify
+
+data:
+  source: data/raw/Dataset_BUSI_with_GT
+  class_map:
+    benign: benign
+    malignant: malignant
+    normal: normal
+  exclude: ["*_mask*"]
+  split: {val: 0.15, test: 0.15}
+  balance: oversample    # small, imbalanced dataset (437 / 210 / 133)
+
+positive_class: malignant   # used for binary metrics if you drop `normal`
+
+preprocess:
+  - median_blur: {ksize: 5}                 # reduce speckle noise
+  - clahe: {clip_limit: 2.5, tile_grid: 8}  # local contrast enhancement
+  - resize: {size: 256, keep_aspect: true}
+
+model: yolo11s-cls.pt
+
+train:
+  epochs: 60
+  imgsz: 224
+  batch: 32
+  patience: 15
+  fliplr: 0.5
+  hsv_h: 0.0
+  hsv_s: 0.0

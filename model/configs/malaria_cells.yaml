@@ -1,0 +1,35 @@
+# Malaria: classify single red-blood-cell crops as Parasitized vs Uninfected.
+# Dataset: NIH / NLM malaria cell images (27,558 Giemsa-stained thin-smear cell crops).
+#   Kaggle: https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria
+#   kaggle datasets download -d iarunava/cell-images-for-detecting-malaria -p data/raw --unzip
+# Layout: cell_images/Parasitized/*.png, cell_images/Uninfected/*.png
+# (The Kaggle zip also contains a duplicate copy; dedupe removes it.)
+
+name: malaria_cells
+task: classify
+
+data:
+  source: data/raw/cell_images
+  class_map:
+    Parasitized: parasitized
+    Uninfected: uninfected
+  split: {val: 0.15, test: 0.15}
+  balance: none          # dataset is already 50/50
+  max_per_class: null    # set e.g. 2000 for a quick CPU run
+
+positive_class: parasitized
+
+preprocess:
+  - resize: {size: 128}
+  - clahe: {clip_limit: 2.0, tile_grid: 4}   # boost contrast of stained parasites
+  - median_blur: {ksize: 3}                  # suppress sensor noise
+
+model: yolo11n-cls.pt
+
+train:
+  epochs: 25
+  imgsz: 128
+  batch: 64
+  patience: 8
+  fliplr: 0.5
+  flipud: 0.5

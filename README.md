@@ -14,8 +14,12 @@ Gallery uploads are also supported. Pick an image and get a full detection resul
 helmax/
     backend/    FastAPI inference server
     mobile/     Expo React Native app
-    model/      YOLOv8 weights and training artifacts
+    model/      Training: PPE notebook + DSIP Lab medical-imaging toolkit
 ```
+
+## DSIP Lab (medical image training)
+
+`model/` also contains a config-driven toolkit for Digital Signal & Image Processing class projects. Example projects are breast cancer detection (histopathology and ultrasound) and malaria parasite detection (cell classification and smear object detection). It combines classic DSP/DIP preprocessing (CLAHE, Fourier/Butterworth filters, homomorphic filtering, stain normalisation, morphology) with YOLO11 training and clinical evaluation metrics. See [model/README.md](model/README.md).
 
 ## Backend
 

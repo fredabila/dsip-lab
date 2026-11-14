@@ -1,0 +1,42 @@
+# Breast cancer: Invasive Ductal Carcinoma (IDC) in H&E histopathology patches.
+# Dataset: 277,524 patches (50x50 px) from 279 patients.
+#   Kaggle: https://www.kaggle.com/datasets/paultimothymooney/breast-histopathology-images
+#   kaggle datasets download -d paultimothymooney/breast-histopathology-images -p data/raw/idc --unzip
+# Layout: <patient_id>/0/*.png (no IDC), <patient_id>/1/*.png (IDC)
+#
+# IMPORTANT: patches from one patient are highly correlated, so we split BY PATIENT
+# (group_level: 1 -> the folder above the 0/1 label folder). A random patch-level
+# split leaks patients into the test set and gives over-optimistic results.
+
+name: breast_idc
+task: classify
+
+data:
+  source: data/raw/idc
+  class_map:
+    "0": non_idc
+    "1": idc
+  group_level: 1
+  split: {val: 0.15, test: 0.15}
+  balance: undersample   # ~71% non-IDC; undersampling also speeds up training
+  max_per_class: 30000   # remove (null) to use everything once your pipeline works
+
+positive_class: idc
+
+preprocess:
+  # Stain normalisation reduces colour differences between slides/scanners.
+  # Pick a well-stained patch as the reference and uncomment:
+  # - reinhard_normalize: {reference: data/raw/idc_reference.png}
+  - resize: {size: 64}
+  - unsharp_mask: {amount: 0.6, sigma: 1.0}
+
+model: yolo11n-cls.pt
+
+train:
+  epochs: 20
+  imgsz: 64
+  batch: 128
+  patience: 6
+  fliplr: 0.5
+  flipud: 0.5
+  hsv_h: 0.0     # keep stain hue
