@@ -94,8 +94,8 @@ At the end, the notebook zips your trained run (weights, plots and metrics) so y
 Open a terminal (on Windows: **PowerShell**), then run:
 
 ```bash
-git clone https://github.com/tormgibbs/helmax.git
-cd helmax/model
+git clone https://github.com/fredabila/dsip-lab.git
+cd dsip-lab/model
 python -m venv .venv
 ```
 
