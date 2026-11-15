@@ -1,5 +1,7 @@
 # DSIP Lab: train a medical image AI model for your class project
 
+*Part of [DSIP Lab](../README.md). This is the full guide for students.*
+
 This folder lets your group **train, test and demo an image model** using topics such as breast cancer detection or malaria parasite detection, **without writing any training code**.
 
 You describe your project in one small settings file (a YAML *config*). Then you run a few commands:
@@ -19,8 +21,8 @@ The **signal processing** part of your project lives in the preprocessing step. 
 ## Contents
 
 1. [Choose how to run it](#1-choose-how-to-run-it)
-2. [Option A: Kaggle or Colab (easiest, free GPU)](#option-a-kaggle-or-colab-easiest-free-gpu)
-3. [Option B: your own laptop](#option-b-your-own-laptop)
+2. [Option A: Kaggle or Colab (easiest, free GPU)](#2-option-a-kaggle-or-colab-easiest-free-gpu)
+3. [Option B: your own laptop](#3-option-b-your-own-laptop)
 4. [Your first model, step by step (malaria example)](#4-your-first-model-step-by-step-malaria-example)
 5. [Setting up YOUR project](#5-setting-up-your-project)
 6. [The signal-processing part: choosing filters](#6-the-signal-processing-part-choosing-filters)
@@ -28,8 +30,9 @@ The **signal processing** part of your project lives in the preprocessing step. 
 8. [Experiments for your report](#8-experiments-for-your-report)
 9. [Working as a group](#9-working-as-a-group)
 10. [Troubleshooting](#10-troubleshooting)
-11. [Command cheat sheet](#11-command-cheat-sheet)
-12. [Glossary](#12-glossary)
+11. [Getting datasets](#11-getting-datasets)
+12. [Command cheat sheet](#12-command-cheat-sheet)
+13. [Glossary](#13-glossary)
 
 ---
 
@@ -48,7 +51,7 @@ Training is much faster on a GPU (a graphics card). Most student laptops don't h
 
 ---
 
-## Option A: Kaggle or Colab (easiest, free GPU)
+## 2. Option A: Kaggle or Colab (easiest, free GPU)
 
 Use the ready-made notebook [`notebooks/train_colab_kaggle.ipynb`](notebooks/train_colab_kaggle.ipynb).
 
@@ -70,7 +73,7 @@ Use the ready-made notebook [`notebooks/train_colab_kaggle.ipynb`](notebooks/tra
 1. Go to colab.research.google.com → **File → Upload notebook**, and upload `train_colab_kaggle.ipynb`.
 2. Choose **Runtime → Change runtime type → T4 GPU**.
 3. Get the dataset into Colab, either:
-   - with the Kaggle CLI: uncomment the lines in the dataset cell and upload your `kaggle.json` token (see [Getting datasets](#getting-datasets)), or
+   - with the Kaggle CLI: uncomment the lines in the dataset cell and upload your `kaggle.json` token (see [Getting datasets](#11-getting-datasets)), or
    - by uploading it to Google Drive and mounting Drive.
 4. Run the cells from top to bottom.
 
@@ -80,7 +83,7 @@ At the end, the notebook zips your trained run (weights, plots and metrics) so y
 
 ---
 
-## Option B: your own laptop
+## 3. Option B: your own laptop
 
 ### What you need
 
@@ -460,7 +463,7 @@ Other ideas:
 
 | Problem | Fix |
 |---|---|
-| `dsip: command not found` / not recognised | Activate the virtual environment (see [Option B](#option-b-your-own-laptop)), or use `python -m dsip ...` |
+| `dsip: command not found` / not recognised | Activate the virtual environment (see [Option B](#3-option-b-your-own-laptop)), or use `python -m dsip ...` |
 | `Activate.ps1 cannot be loaded because running scripts is disabled` | Skip activation and run the venv's Python directly: `.venv\Scripts\python -m dsip ...`. Or use Command Prompt with `.venv\Scripts\activate.bat` |
 | `Dataset source not found` | The path in `data.source` or `--source` is wrong. Paths are relative to the `model/` folder. Quote paths with spaces. |
 | `No labelled images found` | Your images aren't inside class-named folders, or `class_map` doesn't match the folder names exactly (it is case-sensitive) |
@@ -480,7 +483,7 @@ Something else? Run the self-test: `pip install -e ".[dev]"` then `pytest`. It t
 
 ---
 
-## Getting datasets
+## 11. Getting datasets
 
 Many medical datasets are on Kaggle. You can download them in two ways:
 
@@ -499,7 +502,7 @@ Always read the dataset's **license** and cite it in your report.
 
 ---
 
-## 11. Command cheat sheet
+## 12. Command cheat sheet
 
 All commands are run from the `model/` folder. `-c` means `--config`.
 
@@ -535,7 +538,7 @@ model/
 
 ---
 
-## 12. Glossary
+## 13. Glossary
 
 | Term | Meaning |
 |---|---|
